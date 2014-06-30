@@ -1,19 +1,34 @@
-from BeautifulSoup import BeautifulSoup, SoupStrainer
-import urllib, re, data
 import datetime
+import re
+import urllib2
+import cookielib
+
+from BeautifulSoup import BeautifulSoup, SoupStrainer
+
+import gcexport.data as data
+
 
 class IssueParser:
 
     url_format = 'http://code.google.com/p/%s/issues/detail?id=%i'
 
-    def __init__(self, project):
+    def __init__(self, project, cookies_file=None):
         self.project = project
+        self.cookies_file = cookies_file
 
     def parse(self, id, savePage=False):
         url = self.url_format % (self.project, id)
         print 'parse: %s' % url
 
-        usock = urllib.urlopen(url)
+        if self.cookies_file:
+            cookie_jar = cookielib.MozillaCookieJar()
+            cookie_jar.load(self.cookies_file)
+
+            opener = urllib2.build_opener(
+                urllib2.HTTPCookieProcessor(cookie_jar))
+            urllib2.install_opener(opener)
+
+        usock = urllib2.urlopen(url)
         data = usock.read()
         usock.close()
 

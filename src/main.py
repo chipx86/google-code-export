@@ -5,7 +5,7 @@ import os.path
 
 def main():
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'p:s:c:l:')
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'p:s:c:l:j:')
     except getopt.GetoptError, err:
         print 'error:', str(err)
         usage()
@@ -25,6 +25,8 @@ def main():
             count = int(a)
         elif o == '-l':
             label = a
+        elif o == '-j':
+            cookies_file = a
 
     if not project:
         print 'error: project name missing'
@@ -42,7 +44,7 @@ def main():
         exit(2)
 
     writer = writers.XmlWriter(project)
-    parser = parsers.IssueParser(project)
+    parser = parsers.IssueParser(project, cookies_file)
 
     for i in range(start, start + count):
         issue = parser.parse(i)
