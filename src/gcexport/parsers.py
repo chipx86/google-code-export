@@ -184,17 +184,19 @@ class IssueParser:
                 changes = changes_soup.renderContents().split('<br />')
 
                 for change in changes:
+                    change = change.replace('\n', ' ')
                     labels_re = re.search('<b>Labels:</b> (.*)', change)
                     if labels_re:
                         labels = labels_re.group(1).split(' ')
                         comment.labels_removed = []
                         comment.labels_added = []
                         for label in labels:
-                            # if it beings with -, then it's been removed
-                            if label.find('-') == 0:
-                                comment.labels_removed.append(label[1:])
-                            else:
-                                comment.labels_added.append(label)
+                            if label:
+                                # if it beings with -, then it's been removed
+                                if label.find('-') == 0:
+                                    comment.labels_removed.append(label[1:])
+                                else:
+                                    comment.labels_added.append(label)
 
                     owner_re = re.search('<b>Owner:</b> (.*)', change)
                     if owner_re:
