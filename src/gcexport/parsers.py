@@ -191,6 +191,8 @@ class IssueParser:
                         comment.labels_removed = []
                         comment.labels_added = []
                         for label in labels:
+                            label = label.strip()
+
                             if label:
                                 # if it beings with -, then it's been removed
                                 if label.find('-') == 0:
@@ -200,7 +202,7 @@ class IssueParser:
 
                     owner_re = re.search('<b>Owner:</b> (.*)', change)
                     if owner_re:
-                        owner_text = owner_re.group(1)
+                        owner_text = owner_re.group(1).strip()
                         if owner_text == '---':
                             comment.owner_removed = True
                         else:
@@ -208,11 +210,11 @@ class IssueParser:
 
                     status_re = re.search('<b>Status:</b> (.*)', change)
                     if status_re:
-                        comment.new_status = status_re.group(1)
+                        comment.new_status = status_re.group(1).strip()
 
                     summary_re = re.search('<b>Summary:</b> (.*)', change)
                     if summary_re:
-                        comment.new_summary = summary_re.group(1)
+                        comment.new_summary = summary_re.group(1).strip()
 
             comment.attachments = self.parseAttachments(pre.parent)
 
