@@ -126,32 +126,40 @@ class IssueParser:
                     issue.relations.append(blocks)
 
         # attachments exist in the description area
-        # TODO: test
         desc_td = soup.find('td', 'vt issuedescription')
-        issue.attachments = self.parseAttachments(desc_td)
 
-        # all pre tags are details and comments
-        pre_tags = soup.findAll('pre')
-        if pre_tags:
-            # first pre tag is always the details value
-            issue.details = pre_tags[0].renderContents().strip()
+        # Parse out the issue description.
+        issue_desc = desc_td.find('div', 'issuedescription')
+        pre_tag = issue_desc.find('pre')
+        issue.details = pre_tag.renderContents().strip()
 
-            if len(pre_tags) > 1:
-                issue.comments = []
+        # Parse out all the comments made on the issue.
+        issue.attachments = []
+        issue.comments = []
+        issue_comments = desc_td.findAll('div', 'issuecomment')
 
+        for issue_comment in issue_comments:
+            if 'delcom' in issue_comment.attrMap['class']:
+                continue
+
+            issue.attachments += self.parseAttachments(issue_comment) or []
+
+            pre_tag = issue_comment.find('pre')
+
+            if pre_tag:
                 # all following pre tags are comments
-                for pre in pre_tags[1:]:
-                    comment = self.parseComment(pre)
-                    if comment:
-                        issue.comments.append(comment)
+                comment = self.parseComment(pre_tag)
+
+                if comment:
+                    issue.comments.append(comment)
 
         # for property, value in vars(issue).iteritems():
         #   print property, ": ", value
 
         return issue
 
-    def parseAttachments(self, td):
-        attach_div = td.find('div', 'attachments')
+    def parseAttachments(self, parent):
+        attach_div = parent.find('div', 'attachments')
         if attach_div:
             attachments = []
             for attach_table in attach_div.findAll('table'):
